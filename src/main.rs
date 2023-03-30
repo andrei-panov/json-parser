@@ -12,7 +12,7 @@ fn main() {
 }
 
 type IResult<IN, OUT> = Result<(IN, OUT), String>;
-type ParserFunc<'i> = Box<dyn Fn(&'i str) -> IResult<&'i str, &'i str>>;
+type ParserFunc<'i> = Box<dyn Fn(&'i str) -> IResult<&'i str, &'i str> + 'i>;
 
 fn any<'i>(functions: Vec<ParserFunc<'i>>) -> ParserFunc<'i> {
     Box::new(move |input: &'i str| {
@@ -26,7 +26,7 @@ fn any<'i>(functions: Vec<ParserFunc<'i>>) -> ParserFunc<'i> {
     })
 }
 
-fn start_with<'t, 'i>(with: &'t str) -> ParserFunc<'i> {
+fn start_with<'t, 'i>(with: &'t str) -> ParserFunc<'i> where 't: 'i {
     Box::new(move |input: &'i str| {
         return if input.starts_with(&with) {
             Ok((&input[with.len()..], &input[..with.len()]))
